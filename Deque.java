@@ -127,6 +127,7 @@ public class Deque<Item> implements Iterable<Item> {
         System.out.println("Has next?: " + MyIter.hasNext());
         MyDeque.addFirst(10);
         MyIter = MyDeque.iterator();
+        //MyIter.remove();
         System.out.println("Has next?: " + MyIter.hasNext());
         MyDeque.addFirst(20);
         System.out.println("Has next?: " + MyIter.hasNext());
@@ -148,18 +149,12 @@ public class Deque<Item> implements Iterable<Item> {
         System.out.println(MyDeque.isEmpty());
         //MyDeque.addLast(null);
         //MyDeque.addFirst(null);
-        MyDeque.addLast(33);
-        MyDeque.addLast(44);
-        MyDeque.addLast(55);
-        MyDeque.addLast(66);
-        MyDeque.addLast(77);
-        MyDeque.addLast(88);
-        MyDeque.addLast(99);
-        MyDeque.addLast(100);
-        MyDeque.addLast(200);
-        MyDeque.addLast(300);
-        MyDeque.addLast(400);        
-
+        MyDeque.removeFirst();
+        for (int i = 33; i < 100; i += 11)
+        {
+            MyDeque.addLast(i);
+        }       
+        //client using iterator test
         for (Iterator<Integer> Iter = MyDeque.iterator(); Iter.hasNext();)
         {
             System.out.println(MyDeque.removeFirst());

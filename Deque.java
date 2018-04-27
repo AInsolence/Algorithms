@@ -1,3 +1,6 @@
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class Deque<Item> implements Iterable<Item> {
 
     private class Node
@@ -7,23 +10,24 @@ public class Deque<Item> implements Iterable<Item> {
         Node prev;
     }
 
-    private class DequeIterator implements Iterator<Item>
+    public class DequeIterator implements Iterator<Item>
     {
         private Node current = first;
 
         public boolean hasNext()
         {
-            return current != 0;
+            return current != null;
         }
         public Item next()
         {
+            if(this.hasNext() == false){throw new NoSuchElementException();};
             Item item = current.item;
             current = current.next;
             return item;
         }
         public void remove()
         {
-            throw UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -31,6 +35,8 @@ public class Deque<Item> implements Iterable<Item> {
     Node last = null;
 
     public Deque()                           // construct an empty deque
+    {
+    }
     public boolean isEmpty()                 // is the deque empty?
     {
         return (first == null);
@@ -38,44 +44,101 @@ public class Deque<Item> implements Iterable<Item> {
     public int size()                        // return the number of items on the deque
     {
         int size = 0;
-        for(node : this){ if(node) size++};
+        for(Iterator<Item> i = this.iterator(); i.hasNext(); i.next()) size++;
         return size;
     }
-    public void addFirst(Item item)          // add the item to the front
+    public void addFirst(Item newItem)          // add the item to the front
     {
+        if(newItem == null) throw new IllegalArgumentException();
         Node oldfirst = first;
         first = new Node();
-        first.item = item;
-        first.next = oldfirst;
+        first.item = newItem;
         first.prev = null;
-        oldfirst.prev = first;
+        first.next = null;
+        if(oldfirst != null)
+        {
+            first.next = oldfirst;        
+            oldfirst.prev = first;
+        }
+        else 
+        {
+           last = first;
+        }
     }
-    public void addLast(Item item)           // add the item to the end
+    public void addLast(Item newItem)           // add the item to the end
     {
+        if(newItem == null) throw new IllegalArgumentException();
         Node oldlast = last;
         last = new Node();
-        last.item = item;
-        last.prev = oldlast;
+        last.item = newItem;
         last.next = null;
-        oldfirst.prev = last;
+        last.prev = null;
+        if(oldlast != null)
+        {
+            last.prev = oldlast;
+            oldlast.next = last;
+        }
+        else 
+        {
+            first = last;
+        }
     }
     public Item removeFirst()                // remove and return the item from the front
     {
-        Node item = first.item;
-        first = first.next;
-        first.prev = null;
-        return item;
+        if(this.size() == 0) throw new NoSuchElementException();
+        Node removedItem = first;
+        if(first.next == null)
+        {
+            first = null;
+            last = null;
+        } 
+        else
+        {
+            first = first.next;
+            first.prev = null;
+        }
+        return removedItem.item;
     }
     public Item removeLast()                 // remove and return the item from the end
     {
-        Node item = last.item;
-        last = last.prev;
-        last.next = null;
-        return item;
+        if(this.size() == 0) throw new NoSuchElementException();
+        Node removedItem = last;
+        if(last.prev == null)
+        {
+            first = null;
+            last = null;
+        } 
+        else
+        {
+            last = last.prev;
+            last.next = null;
+        }
+        return removedItem.item;
     }
     public Iterator<Item> iterator()         // return an iterator over items in order from front to end
     {
         return new DequeIterator();
     }
     public static void main(String[] args)   // unit testing (optional)
+    {
+        System.out.println("Hello from Deque!");
+        Deque<Integer> MyDeque = new Deque<>();
+        MyDeque.addFirst(10);
+        MyDeque.addFirst(20);
+        MyDeque.addFirst(30);
+        if (MyDeque.removeFirst() != 30) System.out.println("Test 1 failed. removeFirst()");
+        if (MyDeque.size() != 2) System.out.println("Test 2 failed. Size()");
+        if (MyDeque.removeFirst() != 20) System.out.println("Test 3 failed. removeFirst()");
+        if (MyDeque.removeFirst() != 10) System.out.println("Test 4 failed. removeFirst()");
+        if (MyDeque.size() != 0) System.out.println("Test 5 failed. Size()");
+        MyDeque.addLast(40);
+        MyDeque.addLast(50);
+        MyDeque.addLast(60);
+        System.out.println(MyDeque.removeFirst());
+        System.out.println(MyDeque.removeFirst());
+        if (MyDeque.removeFirst() != 60) System.out.println("Test 6 failed. removeLast()");
+        System.out.println(MyDeque.isEmpty());
+        MyDeque.addLast(60);
+        System.out.println(MyDeque.isEmpty());
+    }
 }

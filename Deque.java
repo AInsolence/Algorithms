@@ -3,6 +3,9 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
+    Node first = null;
+    Node last = null;
+
     private class Node
     {
         Item item;
@@ -30,9 +33,6 @@ public class Deque<Item> implements Iterable<Item> {
             throw new UnsupportedOperationException();
         }
     }
-
-    Node first = null;
-    Node last = null;
 
     public Deque()                           // construct an empty deque
     {
@@ -123,8 +123,14 @@ public class Deque<Item> implements Iterable<Item> {
     {
         System.out.println("Hello from Deque!");
         Deque<Integer> MyDeque = new Deque<>();
+        Iterator<Integer> MyIter = MyDeque.iterator();
+        System.out.println("Has next?: " + MyIter.hasNext());
         MyDeque.addFirst(10);
+        MyIter = MyDeque.iterator();
+        System.out.println("Has next?: " + MyIter.hasNext());
         MyDeque.addFirst(20);
+        System.out.println("Has next?: " + MyIter.hasNext());
+        System.out.println("next work?: " + MyIter.next());
         MyDeque.addFirst(30);
         if (MyDeque.removeFirst() != 30) System.out.println("Test 1 failed. removeFirst()");
         if (MyDeque.size() != 2) System.out.println("Test 2 failed. Size()");
@@ -140,5 +146,24 @@ public class Deque<Item> implements Iterable<Item> {
         System.out.println(MyDeque.isEmpty());
         MyDeque.addLast(60);
         System.out.println(MyDeque.isEmpty());
+        //MyDeque.addLast(null);
+        //MyDeque.addFirst(null);
+        MyDeque.addLast(33);
+        MyDeque.addLast(44);
+        MyDeque.addLast(55);
+        MyDeque.addLast(66);
+        MyDeque.addLast(77);
+        MyDeque.addLast(88);
+        MyDeque.addLast(99);
+        MyDeque.addLast(100);
+        MyDeque.addLast(200);
+        MyDeque.addLast(300);
+        MyDeque.addLast(400);        
+
+        for (Iterator<Integer> Iter = MyDeque.iterator(); Iter.hasNext();)
+        {
+            System.out.println(MyDeque.removeFirst());
+            Iter.next();
+        }
     }
 }

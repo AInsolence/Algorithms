@@ -60,7 +60,14 @@ public class Point implements Comparable<Point> {
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
-        return ((that.y − this.y) / (that.x − this.x));
+        Double ySub = new Double(that.y - this.y);
+        Double xSub = new Double(that.x - this.x);
+        if(ySub == 0.0 && xSub != 0.0) return +0.0;
+        if(xSub == 0.0){
+            if(ySub == 0.0) return Double.NEGATIVE_INFINITY;
+            else return Double.POSITIVE_INFINITY;
+        }
+        return (ySub/xSub);
     }
 
     /**
@@ -96,15 +103,19 @@ public class Point implements Comparable<Point> {
         return new SlopeOrder(this);
     }
 
-    private static class SlopeOrder implemets Comparator<Point>
+    private static class SlopeOrder implements Comparator<Point>
     {
-        private Point thisPoint = null;
-        SlopeOrder(Point _thisPoint){
-            thisPoint = _thisPoint;
+        private Point thisPoint;
+        SlopeOrder(Point p)
+        {
+            if(p == null) throw new IllegalArgumentException();
+            thisPoint = p;
         }
         public int compare(Point first, Point second){
-            if(thisPoint.slopeTo(first) < thisPoint.slopeTo(second)) return -1;
-            if(thisPoint.slopeTo(first) > thisPoint.slopeTo(second)) return 1;
+            double slopeToFirst = thisPoint.slopeTo(first);
+            double slopeToSecond = thisPoint.slopeTo(second);
+            if(slopeToFirst < slopeToSecond) return -1;
+            if(slopeToFirst > slopeToSecond) return 1;
             return 0;
         }
     }

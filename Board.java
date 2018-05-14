@@ -4,84 +4,83 @@ public class Board {
 
     private final int gridSize;
     private final int[] grid;
-    private final int hammingKoeff;
-    private final int manhattanKoeff;
-
-    private void swap(int[][] twoDarray, int firstRow, int fistColumn, int secondRow, int secondColumn){
-        int temp = twoDarray[firstRow][fistColumn];
-        twoDarray[firstRow][fistColumn] = twoDarray[secondRow][secondColumn];
-        twoDarray[secondRow][secondColumn] = temp;
-    }
-    private int[][] makeCopy(int[] newGrid){
-        // create copy of the grid
-        int[][] twinGrid = new int[gridSize][gridSize];
-        int position = 0;
-        for(int row = 0; row < gridSize; row++){
-            for(int column = 0; column < gridSize; column++){
-                twinGrid[row][column] = newGrid[position];
-                position++;
-            }
-        }
-        return twinGrid;
-    }
-    private Board rightNeighbor(int blockRow, int blockCol){
-        int[][] right = makeCopy(grid);
-        swap(right, blockRow, blockCol, blockRow, blockCol + 1);
-        Board rNeighbor = new Board(right);
-        return rNeighbor;
-    }
-    private Board leftNeighbor(int blockRow, int blockCol){
-        int[][] left = makeCopy(grid);
-        swap(left, blockRow, blockCol, blockRow, blockCol - 1);
-        Board lNeighbor = new Board(left);
-        return lNeighbor;
-    }
-    private Board topNeighbor(int blockRow, int blockCol){
-        int[][] top = makeCopy(grid);
-        swap(top, blockRow, blockCol, blockRow - 1, blockCol);
-        Board tNeighbor = new Board(top);
-        return tNeighbor;
-    }
-    private Board bottomNeighbor(int blockRow, int blockCol){
-        int[][] bottom = makeCopy(grid);
-        swap(bottom, blockRow, blockCol, blockRow + 1, blockCol);
-        Board bNeighbor = new Board(bottom);
-        return bNeighbor;
-    }
-    private int calcManhattan(int value, int row, int column){
-        int rightRow = (value - 1)/gridSize;
-        int rightCol = (value - 1)%gridSize;
-        int distance = Math.abs(rightRow - row) + Math.abs(rightCol - column);
-        System.out.println("value = " + value);
-        System.out.println("current row&col = " + row + " " + column);
-        System.out.println("right row&col = " + rightRow + " " + rightCol);
-        System.out.println("distance = " + distance);
-        return distance;
-    }
+    private int emptyBlock;
+    private int hammingKoeff;
+    private int manhattanKoeff;
 
     public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
     {
         if(blocks == null) throw new IllegalArgumentException();
         gridSize = blocks.length;
         grid = new int[gridSize*gridSize];
-
-        int tempHammKoeff = 0;
-        int tempManKoeff = 0;
         int position = 0;
-
         for(int row = 0; row < blocks.length; row++){
             for(int column = 0; column < blocks[0].length; column++){
                 grid[position] = blocks[row][column];
                 if(grid[position] != 0 && grid[position] != position + 1){
-                    tempHammKoeff++;
-                    tempManKoeff += calcManhattan(grid[position], row, column);
-                } 
+                    hammingKoeff++;
+                    manhattanKoeff += calcManhattan(grid[position], row, column);
+                }
+                if(grid[position] == 0) emptyBlock = position;
                 position++;
             }
         }
-        hammingKoeff = tempHammKoeff;
-        manhattanKoeff = tempManKoeff;
- 
+    }
+    private Board(int[] blocks, int _gridSize)
+    {
+        if(blocks == null) throw new IllegalArgumentException();
+        gridSize = _gridSize;
+        grid = new int[gridSize*gridSize];
+        for(int i = 0; i < blocks.length; i++){
+                grid[i] = blocks[i];
+                if(grid[i] != 0 && grid[i] != i + 1){
+                    hammingKoeff++;
+                    manhattanKoeff += calcManhattan(grid[i], i/gridSize, i%gridSize);
+                }
+                if(grid[i] == 0) emptyBlock = i;
+        }
+    }
+    private void swap(int[] array, int i, int k){
+        int temp = array[i];
+        array[i] = array[k];
+        array[k] = temp;
+    }
+    private int[] makeCopy(int[] newGrid){
+        int[] twinGrid = new int[gridSize*gridSize];
+        for(int i = 0; i < newGrid.length; i++){
+                twinGrid[i] = newGrid[i];
+        }
+        return twinGrid;
+    }
+    private Board rightNeighbor(int emptyBlock){
+        int[] right = makeCopy(grid);
+        swap(right, emptyBlock, emptyBlock + 1);
+        Board rNeighbor = new Board(right, gridSize);
+        return rNeighbor;
+    }
+    private Board leftNeighbor(int emptyBlock){
+        int[] left = makeCopy(grid);
+        swap(left, emptyBlock, emptyBlock - 1);
+        Board lNeighbor = new Board(left, gridSize);
+        return lNeighbor;
+    }
+    private Board topNeighbor(int emptyBlock){
+        int[] top = makeCopy(grid);
+        swap(top, emptyBlock, emptyBlock - gridSize);
+        Board tNeighbor = new Board(top, gridSize);
+        return tNeighbor;
+    }
+    private Board bottomNeighbor(int emptyBlock){
+        int[] bottom = makeCopy(grid);
+        swap(bottom, emptyBlock, emptyBlock + gridSize);
+        Board bNeighbor = new Board(bottom, gridSize);
+        return bNeighbor;
+    }
+    private int calcManhattan(int value, int row, int column){
+        int rightRow = (value - 1)/gridSize;
+        int rightCol = (value - 1)%gridSize;
+        int distance = Math.abs(rightRow - row) + Math.abs(rightCol - column);
+        return distance;
     }
                                            // (where blocks[i][j] = block in row i, column j)
     public int dimension()                 // board dimension n
@@ -106,13 +105,35 @@ public class Board {
     }
     public Board twin()                    // a board that is obtained by exchanging any pair of blocks
     { 
-        int[][] twinGrid = makeCopy(grid);
-        // change 2 elements != 0
-        if(twinGrid[0][0] != 0 && twinGrid[0][1] != 0){
-            swap(twinGrid, 0, 0, 0, 1);
+        int[] twinGrid = makeCopy(grid);
+        Stack<Integer> toSwap = new Stack<Integer>();
+        for(int i = 0; i < twinGrid.length; i++){
+            if(i != emptyBlock){
+                if(twinGrid[i] != i + 1) toSwap.push(i);
+            } 
         }
-        else swap(twinGrid, 1, 0, 1, 1);
-        Board twinBoard = new Board(twinGrid); // create twin board
+        int first = 0;
+        int second = 1;
+        if(!toSwap.empty()){
+            if(toSwap.size() > 1){
+                first = toSwap.pop();
+                second = toSwap.pop();
+            }
+            else{
+                first = toSwap.pop();
+                if(second == emptyBlock){
+                    if(first != second + 1) second++;
+                    else second +=2;
+                }
+            } 
+            swap(twinGrid, first, second);
+        }
+        else if(twinGrid[0] != 0 && twinGrid[1] != 0){   // change 2 elements != 0
+            swap(twinGrid, 0, 1);
+        }
+        else swap(twinGrid, 2, 3);
+        
+        Board twinBoard = new Board(twinGrid, gridSize); // create twin board
         return twinBoard;
     }
     public boolean equals(Object _other)        // does this board equal _other?
@@ -121,6 +142,7 @@ public class Board {
         if (_other == null) return false;
         if (_other.getClass() != this.getClass()) return false;
         Board other = (Board) _other;
+        if(this.gridSize != other.gridSize) return false;
         for(int i = 0; i < grid.length; i++){
             if(this.grid[i] != other.grid[i]) return false;
         }
@@ -129,61 +151,56 @@ public class Board {
     public Iterable<Board> neighbors()     // all neighboring boards
     {
         Stack<Board> boardNeighbors = new Stack<>();
-        int emptyBlock = 0;
-        for(int i = 0; i < grid.length; i++){
-            if(grid[i] == 0){
-                emptyBlock = i;
-            }
-        }
+
         int blockRow = emptyBlock/gridSize;
         int blockCol = emptyBlock%gridSize;
 
         if(blockRow == 0){  // first row
             if(blockCol == 0){    // first column
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
             }
             else if(blockCol == gridSize - 1){    // last column
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
             }
             else{
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
             }
         }
         else if(blockRow == gridSize - 1){  // last row
             if(blockCol == 0){    // first column
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
             else if(blockCol == gridSize - 1){    // last column
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
             else{
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
         }
         else{
             if(blockCol == 0){    // first column
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
             else if(blockCol == gridSize - 1){    // last column
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
             else{ // in the center
-                boardNeighbors.push(bottomNeighbor(blockRow, blockCol));
-                boardNeighbors.push(rightNeighbor(blockRow, blockCol));
-                boardNeighbors.push(leftNeighbor(blockRow, blockCol));
-                boardNeighbors.push(topNeighbor(blockRow, blockCol));
+                boardNeighbors.push(bottomNeighbor(emptyBlock));
+                boardNeighbors.push(rightNeighbor(emptyBlock));
+                boardNeighbors.push(leftNeighbor(emptyBlock));
+                boardNeighbors.push(topNeighbor(emptyBlock));
             }
         }
 
@@ -206,7 +223,7 @@ public class Board {
     {
         int gridSize = 5;
         int[][] testGrid = new int[gridSize][gridSize];
-        int position = 0;
+        int position = 1;
         for(int row = 0; row < gridSize; row++){
             for(int column = 0; column < gridSize; column++){
                 testGrid[row][column] = position;
@@ -214,14 +231,15 @@ public class Board {
             }
         }
         //testGrid[0][0] = 24;
-        //testGrid[4][4] = 0;
+        testGrid[4][4] = 0;
         Board myBoard = new Board(testGrid);
         System.out.println(myBoard.toString());
-        System.out.println(myBoard.hamming());
-        System.out.println(myBoard.manhattan());
-        /*Board twinMyBoard = myBoard.twin();
+        System.out.println(myBoard.isGoal());
+        //System.out.println(myBoard.hamming());
+        //System.out.println(myBoard.manhattan());
+        Board twinMyBoard = myBoard.twin();
         System.out.println(twinMyBoard.toString());
-        for (Board b : twinMyBoard.neighbors()) {
+        /*for (Board b : twinMyBoard.neighbors()) {
             System.out.println(b.toString());
         }*/
     }

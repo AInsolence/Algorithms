@@ -75,4 +75,3 @@ public:
 private:
 	std::vector<T>* _vector;
 };
-

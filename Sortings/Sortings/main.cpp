@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 	Array->push(37);
 	//Array->pop();
 	Array->print();
-	Array->bubbleSort();
+	Array->selectionSort();
 	Array->print();
 	std::cout << "\n";
 	system("pause");

@@ -30,15 +30,16 @@ public:
 		_vector->pop_back();
 	}
 
-	int size()
+	size_t size()
 	{
 		return _vector->size();
 	}
 
 	void bubbleSort()
 	{
-		for (int j = size(); j >= 0; j--) {
-			for (int i = 0; i < j - 1; i++) {
+		size_t lenght = size();
+		for (size_t j = lenght - 1; j > 0; j--) {
+			for (size_t i = 0; i < j; i++) {
 				if ((*_vector)[i] > (*_vector)[i + 1])
 				{
 					std::swap((*_vector)[i], (*_vector)[i + 1]);
@@ -47,9 +48,24 @@ public:
 		}
 	}
 
+	void selectionSort()
+	{
+		size_t lenght = size();
+		size_t maxElementIndex = lenght - 1;
+		for (size_t j = lenght - 1; j > 0; j--) {
+			maxElementIndex = j;
+			for (size_t i = 0; i < j; i++) {
+				if((*_vector)[i] >(*_vector)[maxElementIndex]) maxElementIndex = i;
+			}
+			if ((*_vector)[j] != (*_vector)[maxElementIndex]){
+				std::swap((*_vector)[j], (*_vector)[maxElementIndex]);
+			}
+		}
+	}
+
 	void print()
 	{
-		for (int i = 0; i < size(); i++)
+		for (size_t i = 0; i < size(); i++)
 		{
 			std::cout << (*_vector)[i] << " ";
 		}

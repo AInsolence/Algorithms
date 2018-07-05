@@ -9,10 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace UnitTestArray
 {
 	MyArray<int>* emptyArray = new MyArray<int>();
-	MyArray<int>* oneElementArray = new MyArray<int>();
-	MyArray<int>* randomArray = new MyArray<int>();
-	MyArray<int>* inversedArray = new MyArray<int>();
-	MyArray<int>* sortedArray = new MyArray<int>();
+	constexpr int MAX_ELEMENT = 99;
 
 	TEST_CLASS(UnitTest1)
 	{
@@ -20,36 +17,48 @@ namespace UnitTestArray
 
 		void setUp()
 		{
-			oneElementArray->push(0);
-			for (size_t i = 0; i < 100; i++) {
-					sortedArray->push(i);
-					randomArray->push(std::rand());
-					inversedArray->push(10 - i);
-			}
+			
 		}
 
 		void tearDown()
 		{
 
 		}
-		TEST_METHOD(PrintCreatedArrays)
-		{
-			emptyArray->print();
-			oneElementArray->print();
-			randomArray->print();
-		}
 		TEST_METHOD(bubbleSortTest)
 		{
-			emptyArray->bubbleSort();
-			oneElementArray->bubbleSort();
-			randomArray->bubbleSort();
+			MyArray<int>* inversedArray = new MyArray<int>();
+			fillArray(inversedArray);
 			inversedArray->bubbleSort();
-			for (size_t i = 0; i < inversedArray->size(); i++) {
+			checkArray(inversedArray);
+		}
+		TEST_METHOD(selectionSortTest)
+		{
+			MyArray<int>* inversedArray = new MyArray<int>();
+			fillArray(inversedArray);
+			inversedArray->selectionSort();
+			checkArray(inversedArray);
+		}
+		TEST_METHOD(insertionSortTest)
+		{
+			MyArray<int>* inversedArray = new MyArray<int>();
+			fillArray(inversedArray);
+			inversedArray->insertionSort();
+			checkArray(inversedArray);
+		}
+
+	private:
+		void fillArray(MyArray<int>* _array) {
+			for (int i = MAX_ELEMENT; i > -1; i--) {
+				_array->push(i);
+			}
+		}
+		void checkArray(MyArray<int>* _array)
+		{
+			for (int i = 0; i < _array->size(); i++) {
 				int expected = i;
-				int actual = (*inversedArray)[i];
+				int actual = (*_array)[i];
 				Assert::AreEqual(expected, actual);
 			}
 		}
-
 	};
 }

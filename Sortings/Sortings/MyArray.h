@@ -20,7 +20,7 @@ public:
 		_vector->push_back(element);
 	}
 
-	T operator [](int index)
+	T operator [](size_t index)
 	{
 		return (*_vector)[index];
 	}

@@ -37,8 +37,9 @@ public:
 
 	void bubbleSort()
 	{
-		size_t lenght = size();
-		for (size_t j = lenght - 1; j > 0; j--) {
+		size_t length = size();
+		if (!length) return; // if array is empty
+		for (size_t j = length - 1; j > 0; j--) {
 			for (size_t i = 0; i < j; i++) {
 				if ((*_vector)[i] > (*_vector)[i + 1])
 				{
@@ -50,15 +51,30 @@ public:
 
 	void selectionSort()
 	{
-		size_t lenght = size();
-		size_t maxElementIndex = lenght - 1;
-		for (size_t j = lenght - 1; j > 0; j--) {
+		size_t length = size();
+		if (!length) return; // if array is empty
+		size_t maxElementIndex = length - 1;
+		for (size_t j = length - 1; j > 0; j--) {
 			maxElementIndex = j;
 			for (size_t i = 0; i < j; i++) {
 				if((*_vector)[i] >(*_vector)[maxElementIndex]) maxElementIndex = i;
 			}
 			if ((*_vector)[j] != (*_vector)[maxElementIndex]){
 				std::swap((*_vector)[j], (*_vector)[maxElementIndex]);
+			}
+		}
+	}
+
+	void insertionSort()
+	{
+		size_t length = size();
+		if (!length) return; // if array is empty
+		for (size_t i = 0; i < length - 1; i++) {
+			for (size_t j = i + 1; j > 0; j--) {
+				if ((*_vector)[j] < (*_vector)[j - 1]) {
+					std::swap((*_vector)[j], (*_vector)[j - 1]);
+				}
+				else break;
 			}
 		}
 	}
